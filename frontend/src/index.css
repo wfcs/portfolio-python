@@ -1,80 +1,319 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
+/* ── Design tokens ─────────────────────────────── */
 @theme {
-  --color-bg-base: #09090b;
-  /* deep carbon */
-  --color-surface-raw: #18181b;
-  --color-accent-cyan: #00f0ff;
-  --color-accent-yellow: #facc15;
-  --color-text-primary: #f4f4f5;
-  --color-text-dim: #a1a1aa;
-
-  --font-display: "Space Grotesk", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --color-brand-blue: #3b82f6;
+  --color-brand-purple: #8b5cf6;
+  --font-sans: 'Poppins', sans-serif;
 }
 
+/* ── Base ──────────────────────────────────────── */
 @layer base {
-  body {
-    background-color: var(--color-bg-base);
-    color: var(--color-text-primary);
-    font-family: var(--font-mono);
-    /* Default to mono for that raw data feel */
-    -webkit-font-smoothing: antialiased;
-    /* Industrial Blueprint Grid Background */
-    background-image:
-      linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    background-attachment: fixed;
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
   }
 
-  h1,
-  h2,
-  h3,
-  h4 {
-    font-family: var(--font-display);
-    letter-spacing: -0.02em;
+  html {
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  body {
+    background-color: #ffffff;
+    color: #111827;
+    font-family: 'Poppins', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* ── Dark mode overrides ── */
+  html.dark body {
+    background-color: #0f172a;
+    color: #e2e8f0;
   }
 
   ::selection {
-    background-color: var(--color-accent-cyan);
-    color: #000;
+    background-color: #3b82f6;
+    color: #fff;
   }
 }
 
+/* ── Components ────────────────────────────────── */
 @layer components {
 
-  /* Brutalist architectural panel */
-  .panel-raw {
-    @apply bg-zinc-900/80 border border-zinc-800 p-6 relative overflow-hidden;
+  /* Navbar */
+  .navbar {
+    @apply fixed top-0 inset-x-0 z-50 transition-all duration-300 bg-white;
+    border-bottom: 1px solid transparent;
   }
 
-  /* Corner accents for the industrial look */
-  .panel-raw::before {
+  html.dark .navbar {
+    background-color: #0f172a;
+  }
+
+  .navbar.scrolled {
+    border-bottom-color: rgba(0, 0, 0, 0.06);
+    box-shadow: 0 1px 12px rgba(0, 0, 0, 0.06);
+  }
+
+  html.dark .navbar.scrolled {
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 1px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .nav-link {
+    @apply text-sm text-gray-600 hover:text-blue-500 transition-colors font-medium;
+  }
+
+  html.dark .nav-link {
+    color: #94a3b8;
+  }
+
+  html.dark .nav-link:hover {
+    color: #60a5fa;
+  }
+
+  /* Logo gradient text */
+  .logo-text {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+    font-size: 1.1rem;
+    line-height: 1.2;
+  }
+
+  /* Dark mode toggle button */
+  .dark-toggle {
+    @apply relative w-11 h-6 rounded-full transition-colors duration-300 focus:outline-none cursor-pointer;
+    background: #e2e8f0;
+  }
+
+  html.dark .dark-toggle {
+    background: #3b82f6;
+  }
+
+  .dark-toggle::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 10px;
-    height: 10px;
-    border-top: 2px solid var(--color-accent-cyan);
-    border-left: 2px solid var(--color-accent-cyan);
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: white;
+    transition: transform 0.3s;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   }
 
-  /* Structural Buttons */
-  .btn-structured {
-    @apply px-5 py-2 font-display font-medium text-sm tracking-widest uppercase border transition-all duration-300;
+  html.dark .dark-toggle::after {
+    transform: translateX(20px);
   }
 
-  .btn-cyan {
-    @apply border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black;
+  /* Hero */
+  .hero-section {
+    @apply pt-32 pb-20;
+    background-color: #ffffff;
   }
 
-  .btn-yellow {
-    @apply border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black;
+  html.dark .hero-section {
+    background-color: #0f172a;
   }
 
-  .data-label {
-    @apply text-[10px] tracking-widest uppercase text-zinc-500 mb-1 block;
+  .hero-highlight {
+    color: #3b82f6;
+  }
+
+  .hero-sub {
+    color: #6b7280;
+  }
+
+  html.dark .hero-sub {
+    color: #94a3b8;
+  }
+
+  /* Tech Stack section */
+  .tech-section {
+    @apply py-20;
+    background-color: #f9fafb;
+  }
+
+  html.dark .tech-section {
+    background-color: #1e293b;
+  }
+
+  .tech-icon-card {
+    @apply flex items-center justify-center rounded-xl border transition-all duration-200 hover:-translate-y-1 cursor-default;
+    width: 80px;
+    height: 80px;
+    background-color: #ffffff;
+    border-color: #f3f4f6;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  }
+
+  html.dark .tech-icon-card {
+    background-color: #0f172a;
+    border-color: #334155;
+  }
+
+  .tech-icon-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+  }
+
+  /* Project cards */
+  .projects-section {
+    @apply py-20;
+    background-color: #ffffff;
+  }
+
+  html.dark .projects-section {
+    background-color: #0f172a;
+  }
+
+  .project-card {
+    @apply rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1;
+    background-color: #ffffff;
+    border: 1px solid #f3f4f6;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  }
+
+  html.dark .project-card {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+
+  .project-card:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  }
+
+  html.dark .project-card:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  }
+
+  .project-card img {
+    @apply w-full object-cover;
+    height: 160px;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    @apply flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border transition-all duration-200;
+    border-color: #3b82f6;
+    color: #3b82f6;
+  }
+
+  .btn-primary:hover {
+    background-color: #3b82f6;
+    color: #ffffff;
+  }
+
+  .btn-secondary {
+    @apply flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border transition-all duration-200;
+    border-color: #d1d5db;
+    color: #4b5563;
+  }
+
+  html.dark .btn-secondary {
+    border-color: #475569;
+    color: #94a3b8;
+  }
+
+  .btn-secondary:hover {
+    background-color: #f9fafb;
+  }
+
+  html.dark .btn-secondary:hover {
+    background-color: #334155;
+    color: #e2e8f0;
+  }
+
+  /* Tag badges */
+  .tag-badge {
+    @apply text-[10px] font-semibold px-2 py-0.5 rounded-full;
+  }
+
+  /* Section headings */
+  .section-title {
+    @apply text-2xl font-bold text-center;
+    color: #111827;
+  }
+
+  html.dark .section-title {
+    color: #f1f5f9;
+  }
+
+  .section-subtitle {
+    @apply text-sm text-center mt-1;
+    color: #6b7280;
+  }
+
+  html.dark .section-subtitle {
+    color: #94a3b8;
+  }
+
+  /* Contact section */
+  .contact-section {
+    @apply py-20;
+    background-color: #f9fafb;
+  }
+
+  html.dark .contact-section {
+    background-color: #1e293b;
+  }
+
+  /* Footer */
+  .footer {
+    @apply py-10 border-t;
+    background-color: #ffffff;
+    border-color: #f3f4f6;
+  }
+
+  html.dark .footer {
+    background-color: #0f172a;
+    border-color: #1e293b;
+  }
+
+  .footer-divider {
+    @apply mt-8 pt-6 border-t;
+    border-color: #f3f4f6;
+  }
+
+  html.dark .footer-divider {
+    border-color: #1e293b;
+  }
+
+  /* Social icon */
+  .social-icon {
+    color: #9ca3af;
+    transition: color 0.2s;
+  }
+
+  .social-icon:hover {
+    color: #3b82f6;
+  }
+
+  html.dark .social-icon {
+    color: #64748b;
+  }
+
+  html.dark .social-icon:hover {
+    color: #60a5fa;
+  }
+
+  /* Card text overrides for dark */
+  html.dark .card-title {
+    color: #f1f5f9;
+  }
+
+  html.dark .card-desc {
+    color: #94a3b8;
+  }
+
+  html.dark .footer-text {
+    color: #64748b;
   }
 }

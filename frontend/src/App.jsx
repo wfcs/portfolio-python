@@ -1,252 +1,492 @@
-import React from 'react'
-import { Link, Route, Routes, useLocation } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Terminal, Database, Activity, GitCommit, GitPullRequest, Layers, HardDrive } from 'lucide-react'
 
-// Terminal-like Header for pages
-const PageHeader = ({ title, subtitle, icon: Icon }) => (
-  <div className="mb-8 pb-4 border-b border-zinc-800">
-    <div className="flex items-center gap-3 text-cyan-400 mb-2">
-      <Icon size={24} />
-      <h1 className="text-3xl font-display font-medium tracking-tight uppercase text-zinc-100">{title}</h1>
-    </div>
-    <span className="text-sm font-mono text-zinc-500 block">/* {subtitle} */</span>
-  </div>
+// ─── Inline SVG Icons ─────────────────────────────────────────────────────────
+
+const GithubIcon = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+  </svg>
 )
 
-const MotionLink = motion.create ? motion.create(Link) : motion(Link);
-
-const Home = () => (
-  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="space-y-8">
-    <div className="panel-raw border-l-4 border-l-cyan-400">
-      <span className="data-label">SYSTEM.STATUS</span>
-      <h1 className="text-4xl md:text-6xl font-display font-bold text-zinc-100 mt-2 mb-4 leading-tight">
-        DATA OPS &<br />
-        <span className="text-cyan-400">ANALYTICS ENG</span>
-      </h1>
-      <p className="font-mono text-zinc-400 max-w-2xl leading-relaxed mb-8 text-sm">
-        [PROFILE_LOAD] Senior BI Analyst transitioning to Analytics Engineering.
-        Specializing in Microsoft Fabric, Dimensional Modeling, and high-performance DAX architectures.
-        Transforming raw telemetry into governed, scalable decision engines.
-      </p>
-      <div className="flex flex-wrap gap-4">
-        <MotionLink
-          to="/experience"
-          className="btn-structured btn-cyan flex items-center gap-2"
-          whileHover={{ scale: 1.05, textShadow: "0px 0px 8px rgb(0 240 255 / 0.8)", boxShadow: "0px 0px 15px rgb(0 240 255 / 0.3)" }}
-          whileTap={{ scale: 0.95 }}
-          transition={{ type: "spring", stiffness: 400, damping: 10 }}
-        >
-          <Activity size={16} /> Execute: View_Timeline
-        </MotionLink>
-        <motion.a
-          href="https://github.com/wfcs/"
-          target="_blank"
-          rel="noreferrer"
-          className="btn-structured border-zinc-700 text-zinc-300 hover:bg-zinc-800 flex items-center gap-2"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          transition={{ type: "spring", stiffness: 400, damping: 10 }}
-        >
-          <Terminal size={16} /> Init: GitHub
-        </motion.a>
-      </div>
-    </div>
-
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div className="panel-raw">
-        <span className="data-label">CORE.NODE_01</span>
-        <HardDrive size={20} className="text-yellow-400 mb-3" />
-        <h3 className="font-display font-bold text-zinc-200 mb-2">Architectural Mapping</h3>
-        <p className="text-xs text-zinc-500 font-mono">Star Schemas, DataVault, Semantic Layers</p>
-      </div>
-      <div className="panel-raw">
-        <span className="data-label">CORE.NODE_02</span>
-        <Layers size={20} className="text-cyan-400 mb-3" />
-        <h3 className="font-display font-bold text-zinc-200 mb-2">Fabric Ecosystem</h3>
-        <p className="text-xs text-zinc-500 font-mono">Lakehouse, Dataflows Gen2, Semantic Link</p>
-      </div>
-      <div className="panel-raw">
-        <span className="data-label">CORE.NODE_03</span>
-        <Database size={20} className="text-zinc-300 mb-3" />
-        <h3 className="font-display font-bold text-zinc-200 mb-2">Engine Performance</h3>
-        <p className="text-xs text-zinc-500 font-mono">DAX Optimization, SQL Server, Python</p>
-      </div>
-    </div>
-  </motion.div>
+const TwitterIcon = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+  </svg>
 )
 
-const Experience = () => (
-  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-    <PageHeader title="Execution_Log" subtitle="Professional timeline and structural changes" icon={GitCommit} />
+const LinkedinIcon = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+  </svg>
+)
 
-    <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-zinc-800 before:to-transparent">
-      {/* Target API Payload Simulation */}
-      <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-        <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-cyan-400 bg-zinc-900 text-cyan-400 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-[0_0_10px_rgba(0,240,255,0.2)] z-10">
-          <Activity size={16} />
+const ExternalLinkIcon = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" />
+  </svg>
+)
+
+const CodeIcon = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" />
+  </svg>
+)
+
+const SunIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="5" />
+    <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+    <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+  </svg>
+)
+
+const MoonIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+  </svg>
+)
+
+// ─── Tech stack data ──────────────────────────────────────────────────────────
+
+const TECH_STACK = [
+  { name: 'Power BI', src: 'https://upload.wikimedia.org/wikipedia/commons/c/cf/New_Power_BI_Logo.svg' },
+  { name: 'Python', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg' },
+  { name: 'SQL Server', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/microsoftsqlserver/microsoftsqlserver-plain.svg' },
+  { name: 'Azure', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg' },
+  { name: 'Microsoft Fabric', src: 'https://debruyn.dev/2023/all-microsoft-fabric-icons-for-diagramming-old-version/Fabric_256.svg' },
+  { name: 'Databricks', src: 'https://cdn.brandfetch.io/idSUrLOWbH/theme/dark/symbol.svg?c=1dxbfHSJFAPEGdCLU4o5B' },
+  // { name: 'Git', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg' },
+  { name: 'GitHub', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg' },
+  { name: 'VS Code', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg' },
+  { name: 'Pandas', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pandas/pandas-original.svg' },
+  { name: 'Apache Spark', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apachespark/apachespark-original.svg' },
+  { name: 'PostgreSQL', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg' },
+]
+
+// ─── Project data ─────────────────────────────────────────────────────────────
+
+const STATIC_PROJECTS = [
+  {
+    id: 1,
+    title: 'dCalendarioSimples',
+    description: 'Standardized, high-performance DAX dimensional model ensuring absolute consistency in time-intelligence across BI reports.',
+    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80',
+    tags: ['DAX', 'Power BI', 'Modelling'],
+    github_url: 'https://github.com/wfcs/dCalendarioSimples',
+    live_url: '',
+  },
+  {
+    id: 2,
+    title: 'Fabric Analytics Dashboard',
+    description: 'End-to-end Microsoft Fabric Lakehouse pipeline with Dataflows Gen2 and semantic model exposing KPIs via REST API.',
+    image: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=600&q=80',
+    tags: ['Fabric', 'Python', 'Lakehouse'],
+    github_url: 'https://github.com/wfcs/',
+    live_url: '',
+  },
+  {
+    id: 3,
+    title: 'semantic-link-labs',
+    description: "Contributing to Microsoft Fabric's Semantic Link to expose enterprise semantic models to programmatic Python analysis.",
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80',
+    tags: ['Python', 'Fabric', 'OSS'],
+    github_url: 'https://github.com/wfcs/semantic-link-labs',
+    live_url: '',
+  },
+  {
+    id: 4,
+    title: 'DAX Performance Toolkit',
+    description: 'Collection of optimized DAX patterns and templates for Power BI enterprise rollouts with governance guardrails.',
+    image: 'https://images.unsplash.com/photo-1502759683299-cdcd6974244f?w=600&q=80',
+    tags: ['DAX', 'Power BI', 'Governance'],
+    github_url: 'https://github.com/wfcs/',
+    live_url: '',
+  },
+  {
+    id: 5,
+    title: 'Dimensional Model Generator',
+    description: 'Python-based tool to auto-generate star schema dimensional models from source table metadata and business rules.',
+    image: 'https://images.unsplash.com/photo-1446776899648-aa78eefe8ed0?w=600&q=80',
+    tags: ['Python', 'SQL', 'Star Schema'],
+    github_url: 'https://github.com/wfcs/',
+    live_url: '',
+  },
+  {
+    id: 6,
+    title: 'BI Governance Framework',
+    description: 'Comprehensive governance templates, naming conventions, and review checklists for enterprise Power BI deployments.',
+    image: 'https://images.unsplash.com/photo-1579547944212-c4f4961a8dd8?w=600&q=80',
+    tags: ['Governance', 'BI', 'Power BI'],
+    github_url: 'https://github.com/wfcs/',
+    live_url: '',
+  },
+]
+
+const TAG_COLORS = {
+  'DAX': 'bg-blue-100 text-blue-700',
+  'Power BI': 'bg-yellow-100 text-yellow-700',
+  'Modelling': 'bg-purple-100 text-purple-700',
+  'Fabric': 'bg-cyan-100 text-cyan-700',
+  'Python': 'bg-green-100 text-green-700',
+  'Lakehouse': 'bg-indigo-100 text-indigo-700',
+  'OSS': 'bg-pink-100 text-pink-700',
+  'Governance': 'bg-orange-100 text-orange-700',
+  'SQL': 'bg-gray-100 text-gray-600',
+  'Star Schema': 'bg-teal-100 text-teal-700',
+  'BI': 'bg-rose-100 text-rose-700',
+}
+const getTagColor = (tag) => TAG_COLORS[tag] ?? 'bg-gray-100 text-gray-600'
+
+const NAV_LINKS = ['Home', 'About', 'Tech Stack', 'Projects', 'Contact']
+
+// ─── Dark mode hook ───────────────────────────────────────────────────────────
+
+function useDarkMode() {
+  const [dark, setDark] = useState(() => {
+    if (typeof window === 'undefined') return false
+    const stored = localStorage.getItem('theme')
+    if (stored) return stored === 'dark'
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+  })
+
+  useEffect(() => {
+    if (dark) {
+      document.documentElement.classList.add('dark')
+      localStorage.setItem('theme', 'dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+      localStorage.setItem('theme', 'light')
+    }
+  }, [dark])
+
+  return [dark, setDark]
+}
+
+// ─── Navbar ───────────────────────────────────────────────────────────────────
+
+const Navbar = ({ activeSection, onNav, dark, setDark }) => {
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 10)
+    window.addEventListener('scroll', handler)
+    return () => window.removeEventListener('scroll', handler)
+  }, [])
+
+  return (
+    <header className={`navbar ${scrolled ? 'scrolled' : ''}`}>
+      <nav className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        {/* Logo */}
+        <div className="flex flex-col leading-none select-none cursor-pointer" onClick={() => onNav('home')}>
+          <span className="logo-text">{`{007}`}</span>
+          <span className="text-[10px] text-gray-400 font-medium tracking-wider">felipedovinho</span>
         </div>
-        <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] panel-raw p-5">
-          <div className="flex justify-between items-start mb-2">
-            <div>
-              <span className="data-label">ACTIVE_THREAD</span>
-              <h3 className="font-display font-bold text-lg text-zinc-100">Sr. Center of Excellence Analyst</h3>
-            </div>
-            <span className="text-xs font-mono text-cyan-400 bg-cyan-400/10 px-2 py-1 border border-cyan-400/20">CURRENT</span>
+
+        {/* Nav links */}
+        <ul className="hidden md:flex items-center gap-8">
+          {NAV_LINKS.map((link) => (
+            <li key={link}>
+              <button
+                onClick={() => onNav(link.toLowerCase().replace(' ', '-'))}
+                className={`nav-link ${activeSection === link.toLowerCase().replace(' ', '-') ? 'text-blue-500' : ''}`}
+              >
+                {link}
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        {/* Right: Social + Dark toggle */}
+        <div className="flex items-center gap-4">
+          <a href="https://github.com/wfcs/" target="_blank" rel="noreferrer" className="social-icon">
+            <GithubIcon size={20} />
+          </a>
+          <a href="https://twitter.com/" target="_blank" rel="noreferrer" className="social-icon">
+            <TwitterIcon size={20} />
+          </a>
+          <a href="https://linkedin.com/in/wfcs93" target="_blank" rel="noreferrer" className="social-icon">
+            <LinkedinIcon size={20} />
+          </a>
+
+          {/* Dark mode toggle */}
+          <button
+            onClick={() => setDark(!dark)}
+            aria-label="Toggle dark mode"
+            className="flex items-center gap-1.5 ml-2 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all text-xs font-medium"
+          >
+            {dark ? <SunIcon size={15} /> : <MoonIcon size={15} />}
+            {dark ? 'Light' : 'Dark'}
+          </button>
+        </div>
+      </nav>
+    </header>
+  )
+}
+
+// ─── Hero ─────────────────────────────────────────────────────────────────────
+
+const Hero = () => (
+  <section id="home" className="hero-section max-w-6xl mx-auto px-6">
+    <div className="flex flex-col md:flex-row items-center justify-between gap-12">
+      {/* Text */}
+      <motion.div
+        initial={{ opacity: 0, x: -30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6 }}
+        className="flex-1"
+      >
+        <p className="text-3xl md:text-4xl font-bold leading-snug mb-1" style={{ color: 'inherit' }}>
+          Hi <span role="img" aria-label="wave">👋</span>,
+        </p>
+        <p className="text-3xl md:text-4xl font-bold leading-snug mb-1">
+          My name is
+        </p>
+        <p className="text-3xl md:text-4xl font-bold leading-snug mb-1">
+          <span className="hero-highlight">Felipe Silva</span>
+        </p>
+        <p className="text-3xl md:text-4xl font-bold leading-snug">
+          I build things for data
+        </p>
+        <p className="mt-6 hero-sub max-w-md leading-relaxed text-sm">
+          Senior BI Analyst transitioning to Analytics Engineering — specializing in
+          Microsoft Fabric, Dimensional Modeling, and high-performance DAX architectures.
+        </p>
+
+      </motion.div>
+
+      {/* Profile photo — real photo */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="shrink-0"
+      >
+        <div className="relative w-52 h-52 md:w-64 md:h-64">
+          <div className="absolute inset-0 rounded-full p-[3px]" style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899)' }}>
+            <img
+              src="/profile.jpg"
+              alt="Felipe Silva"
+              className="w-full h-full rounded-full object-cover object-top"
+            />
           </div>
-          <p className="text-sm font-display text-zinc-300 mb-3">Unidas Frotas // Oct 2024 - Present</p>
-          <ul className="text-xs font-mono text-zinc-500 space-y-2 list-none">
-            <li className="flex gap-2"><span className="text-cyan-400">&gt;</span> Modernizing analytics platform towards MS Fabric.</li>
-            <li className="flex gap-2"><span className="text-cyan-400">&gt;</span> Developing strategic dashboards with advanced DAX.</li>
-            <li className="flex gap-2"><span className="text-cyan-400">&gt;</span> Leading BI initiatives from scope to delivery.</li>
-          </ul>
         </div>
+      </motion.div>
+    </div>
+  </section>
+)
+
+// ─── Tech Stack ───────────────────────────────────────────────────────────────
+
+const TechStack = () => (
+  <section id="tech-stack" className="tech-section">
+    <div className="max-w-6xl mx-auto px-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="text-center mb-12"
+      >
+        <h2 className="section-title">My Tech Stack</h2>
+        <p className="section-subtitle">Technologies I've been working with recently</p>
+      </motion.div>
+
+      <div className="flex flex-wrap justify-center gap-4">
+        {TECH_STACK.map((tech, i) => (
+          <motion.div
+            key={tech.name}
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.3, delay: i * 0.05 }}
+            title={tech.name}
+          >
+            <div className="tech-icon-card">
+              <img src={tech.src} alt={tech.name} className="w-10 h-10 object-contain" />
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  </section>
+)
+
+// ─── Projects ─────────────────────────────────────────────────────────────────
+
+const ProjectCard = ({ project, index }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.4, delay: index * 0.07 }}
+    className="project-card"
+  >
+    <img src={project.image} alt={project.title} />
+    <div className="p-4">
+      <h3 className="card-title font-bold text-base mb-1" style={{ color: 'inherit' }}>{project.title}</h3>
+      <p className="card-desc text-xs leading-relaxed mb-3 line-clamp-3" style={{ color: '#6b7280' }}>{project.description}</p>
+      <div className="flex flex-wrap gap-1.5 mb-4">
+        {project.tags.map((tag) => (
+          <span key={tag} className={`tag-badge ${getTagColor(tag)}`}>{tag}</span>
+        ))}
+      </div>
+      <div className="flex gap-2 border-t border-gray-100 dark:border-gray-700 pt-3">
+        {project.live_url && (
+          <a href={project.live_url} target="_blank" rel="noreferrer" className="btn-primary">
+            <ExternalLinkIcon /> Live Preview
+          </a>
+        )}
+        {project.github_url && (
+          <a href={project.github_url} target="_blank" rel="noreferrer" className="btn-secondary">
+            <CodeIcon /> View Code
+          </a>
+        )}
       </div>
     </div>
   </motion.div>
 )
 
 const Projects = () => (
-  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-    <PageHeader title="System_Modules" subtitle="Structural assets and repository architecture" icon={GitPullRequest} />
+  <section id="projects" className="projects-section">
+    <div className="max-w-6xl mx-auto px-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="text-center mb-12"
+      >
+        <h2 className="section-title">Projects</h2>
+        <p className="section-subtitle">Things I've built so far</p>
+      </motion.div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div className="panel-raw group">
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex items-center gap-3">
-            <Database size={20} className="text-cyan-400" />
-            <h3 className="font-display font-bold text-xl text-zinc-100">dCalendarioSimples</h3>
-          </div>
-          <span className="text-xs font-mono text-zinc-500">v1.0</span>
-        </div>
-        <div className="mb-4">
-          <span className="data-label">PROBLEM_SPACE</span>
-          <p className="text-xs text-zinc-400 font-mono mb-3">Inconsistent temporal analysis across disparate BI reports causing semantic fragmentation.</p>
-          <span className="data-label">RESOLUTION</span>
-          <p className="text-xs text-zinc-400 font-mono">A standardized, highly-performant DAX dimensional model ensuring absolute consistency in time-intelligence.</p>
-        </div>
-        <div className="flex justify-between items-center mt-6 pt-4 border-t border-zinc-800">
-          <div className="flex gap-2">
-            <span className="px-2 py-1 text-[10px] font-mono bg-zinc-900 border border-zinc-700 text-zinc-300">DAX</span>
-            <span className="px-2 py-1 text-[10px] font-mono bg-zinc-900 border border-zinc-700 text-zinc-300">Modelling</span>
-          </div>
-          <a href="https://github.com/wfcs/dCalendarioSimples" className="text-xs font-mono text-cyan-400 hover:text-cyan-300">Inspect Source -&gt;</a>
-        </div>
-      </div>
-
-      {/* Second module */}
-      <div className="panel-raw group">
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex items-center gap-3">
-            <Terminal size={20} className="text-yellow-400" />
-            <h3 className="font-display font-bold text-xl text-zinc-100">semantic-link-labs</h3>
-          </div>
-          <span className="text-xs font-mono text-zinc-500">fork</span>
-        </div>
-        <div className="mb-4">
-          <span className="data-label">PROBLEM_SPACE</span>
-          <p className="text-xs text-zinc-400 font-mono mb-3">Bridging the gap between Power BI semantic models and Python data science workflows in Azure.</p>
-          <span className="data-label">RESOLUTION</span>
-          <p className="text-xs text-zinc-400 font-mono">Contributing to Microsoft Fabric's Semantic Link to expose enterprise data models to programmatic analysis.</p>
-        </div>
-        <div className="flex justify-between items-center mt-6 pt-4 border-t border-zinc-800">
-          <div className="flex gap-2">
-            <span className="px-2 py-1 text-[10px] font-mono bg-zinc-900 border border-zinc-700 text-zinc-300">Python</span>
-            <span className="px-2 py-1 text-[10px] font-mono bg-zinc-900 border border-zinc-700 text-zinc-300">Fabric</span>
-          </div>
-          <a href="https://github.com/wfcs/semantic-link-labs" className="text-xs font-mono text-yellow-400 hover:text-yellow-300">Inspect Source -&gt;</a>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {STATIC_PROJECTS.map((project, i) => (
+          <ProjectCard key={project.id} project={project} index={i} />
+        ))}
       </div>
     </div>
-  </motion.div>
+  </section>
 )
 
-function App() {
-  const location = useLocation();
+// ─── Contact ──────────────────────────────────────────────────────────────────
 
-  const navLinks = [
-    { name: 'INDEX', path: '/', icon: <Terminal size={18} /> },
-    { name: 'EXEC_LOG', path: '/experience', icon: <GitCommit size={18} /> },
-    { name: 'REQUIREMENTS', path: '/projects', icon: <Database size={18} /> },
-  ]
+const Contact = () => (
+  <section id="contact" className="contact-section">
+    <div className="max-w-2xl mx-auto px-6 text-center">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+      >
+        <h2 className="section-title mb-2">Get In Touch</h2>
+        <p className="section-subtitle mb-8">
+          Whether you have a project, question, or just want to say hi — my inbox is always open.
+        </p>
+        <a
+          href="mailto:felipedovinho@email.com"
+          className="inline-block px-10 py-3 rounded-full border-2 border-blue-600 text-blue-600 font-semibold text-sm hover:bg-blue-600 hover:text-white transition-all duration-200"
+        >
+          Say Hello
+        </a>
+      </motion.div>
+    </div>
+  </section>
+)
+
+// ─── Footer ───────────────────────────────────────────────────────────────────
+
+const Footer = ({ onNav }) => (
+  <footer className="footer">
+    <div className="max-w-6xl mx-auto px-6">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex flex-col leading-none cursor-pointer" onClick={() => onNav('home')}>
+          <span className="logo-text">{`{007}`}</span>
+          <span className="text-[10px] text-gray-400 font-medium tracking-wider">felipedovinho</span>
+        </div>
+        <div className="flex flex-col md:flex-row items-center gap-4 text-xs text-gray-500">
+          <span>+55 (11) 9000-0000</span>
+          <span className="hidden md:block">·</span>
+          <span>felipedovinho@email.com</span>
+        </div>
+        <div className="flex items-center gap-4">
+          <a href="https://github.com/wfcs/" target="_blank" rel="noreferrer" className="social-icon"><GithubIcon size={18} /></a>
+          <a href="https://twitter.com/" target="_blank" rel="noreferrer" className="social-icon"><TwitterIcon size={18} /></a>
+          <a href="https://linkedin.com/in/wfcs93" target="_blank" rel="noreferrer" className="social-icon"><LinkedinIcon size={18} /></a>
+        </div>
+      </div>
+
+      <div className="footer-divider flex flex-col md:flex-row items-center justify-between gap-4">
+        <nav className="flex gap-6">
+          {NAV_LINKS.map((link) => (
+            <button
+              key={link}
+              onClick={() => onNav(link.toLowerCase().replace(' ', '-'))}
+              className="text-xs text-gray-500 hover:text-blue-600 transition-colors"
+            >
+              {link}
+            </button>
+          ))}
+        </nav>
+        <p className="text-xs text-gray-400">
+          Designed &amp; Built by{' '}
+          <span className="text-blue-600 font-medium">Felipe Silva</span>
+          {' '}with ❤️ and Coffee
+        </p>
+      </div>
+    </div>
+  </footer>
+)
+
+// ─── App ──────────────────────────────────────────────────────────────────────
+
+export default function App() {
+  const [dark, setDark] = useDarkMode()
+  const [activeSection, setActiveSection] = useState('home')
+
+  const scrollToSection = (id) => {
+    const el = document.getElementById(id)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' })
+      setActiveSection(id)
+    }
+  }
+
+  // Track active section on scroll via IntersectionObserver
+  useEffect(() => {
+    const ids = ['home', 'tech-stack', 'projects', 'contact']
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActiveSection(entry.target.id)
+        })
+      },
+      { rootMargin: '-40% 0px -50% 0px' }
+    )
+    ids.forEach((id) => {
+      const el = document.getElementById(id)
+      if (el) observer.observe(el)
+    })
+    return () => observer.disconnect()
+  }, [])
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
-      <aside className="w-full md:w-72 bg-zinc-950/80 backdrop-blur-md border-r border-zinc-800 p-6 flex flex-col relative z-20">
-        <div className="mb-12">
-          <div className="w-12 h-12 bg-zinc-900 border-2 border-cyan-400 flex items-center justify-center mb-4 shadow-[0_0_15px_rgba(0,240,255,0.15)]">
-            <span className="font-display font-bold text-xl text-cyan-400">FS</span>
-          </div>
-          <h2 className="text-2xl font-display font-bold text-zinc-100 tracking-tight uppercase">Felipe Silva</h2>
-          <p className="text-xs font-mono text-zinc-500 mt-1 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-            SYS.ARCHITECT // DATA
-          </p>
-        </div>
-
-        <nav className="flex-1 space-y-1">
-          <span className="data-label mb-4">NAVIGATION_ROUTER</span>
-          {navLinks.map((link) => {
-            const isActive = location.pathname === link.path;
-            return (
-              <MotionLink
-                key={link.path}
-                to={link.path}
-                className={`flex items-center gap-3 px-4 py-3 text-sm font-mono transition-all duration-200 border-l-2 ${isActive
-                  ? 'border-cyan-400 bg-cyan-400/5 text-cyan-400'
-                  : 'border-transparent text-zinc-500 hover:border-zinc-700 hover:bg-zinc-900 hover:text-zinc-300'
-                  }`}
-                whileHover={{ x: 5, backgroundColor: "rgba(39, 39, 42, 0.5)" }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              >
-                {link.icon}
-                {link.name}
-              </MotionLink>
-            )
-          })}
-        </nav>
-
-        <div className="mt-auto pt-6 border-t border-zinc-800">
-          <span className="data-label mb-3">EXTERNAL_LINKAGES</span>
-          <div className="flex gap-4 text-zinc-500 font-mono text-xs">
-            <motion.a
-              href="https://linkedin.com/in/wfcs93"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-cyan-400 transition-colors underline decoration-zinc-700 underline-offset-4"
-              whileHover={{ y: -2, color: "#00f0ff" }}
-            >
-              LINKEDIN
-            </motion.a>
-            <motion.a
-              href="https://github.com/wfcs/"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-cyan-400 transition-colors underline decoration-zinc-700 underline-offset-4"
-              whileHover={{ y: -2, color: "#00f0ff" }}
-            >
-              GITHUB
-            </motion.a>
-          </div>
-        </div>
-      </aside>
-
-      <main className="flex-1 relative z-10 w-full">
-        {/* Glow effects simulating CRT or energy fields */}
-        <div className="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] bg-cyan-900/10 blur-[120px] rounded-full pointer-events-none"></div>
-        <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-yellow-900/10 blur-[100px] rounded-full pointer-events-none"></div>
-
-        <div className="p-6 md:p-12 md:max-w-5xl mx-auto h-full overflow-y-auto">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/experience" element={<Experience />} />
-            <Route path="/projects" element={<Projects />} />
-          </Routes>
-        </div>
-      </main>
+    <div className="min-h-screen">
+      <Navbar
+        activeSection={activeSection}
+        onNav={scrollToSection}
+        dark={dark}
+        setDark={setDark}
+      />
+      <Hero />
+      <TechStack />
+      <Projects />
+      <Contact />
+      <Footer onNav={scrollToSection} />
     </div>
   )
 }
-
-export default App
